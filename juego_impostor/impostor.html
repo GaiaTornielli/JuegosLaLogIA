@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego del Impostor - Configurable</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+
+    <style>
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #0e9999;
+            font-family: 'Bungee', Arial, sans-serif;
+            text-align: center;
+        }
+
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .message-box {
+            border: 2px solid #333;
+            padding: 20px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 15px;
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .impostor {
+            color: red;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            background-color: #888888;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+
+        button:hover {
+            background-color: #0e9999; /* #0056b3; */
+        }
+
+        #reconfig-button {
+            background-color: #ff8000;
+            color: white;
+        }
+        #reconfig-button:hover {
+            background-color: red;
+        }
+
+        #restart-button {
+            background-color: #0e9999;
+            color: white;
+            box-shadow: 0 2px 80px #0e9999;
+        }
+        #restart-button:hover {
+            background-color: #ff8000;
+        }
+        .day-mode #restart-button {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        input[type="number"] {
+            padding: 8px;
+            margin: 5px;
+            border: 2px solid #0e9999; /* #ccc; */
+            border-radius: 5px;
+            font-family: 'Montserrat', Arial, sans-serif;
+            width: 60px;
+            background-color: cadetblue;
+        }
+
+        /* instrucciones flotantes */
+        #instructions-button {
+            border-radius: 50px;
+            margin-left: 5px;
+            padding: 14px;
+            padding-top: 9px;
+            padding-bottom: 9px;
+            font-size: 12px;
+            color: #a7ebeb;
+            font-family: 'Bungee', Arial, sans-serif;
+        }
+        #instructions {
+            position: absolute;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            left: 50%;
+            transform: translate(-50%, 0);
+            width: 380px;
+        }
+        #instructions-content {
+            background-color: rgb(65, 65, 171);
+            color: white;
+            text-align: left;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #0e9999;
+            box-shadow: inset 0 0 30px #0e9999 , 0 4px 9px rgb(0, 0, 0, 0.8);
+        }
+
+        /* Modo día */
+        .day-mode {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .day-mode .message-box {
+            background-color: #f0f0f0;
+            border-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Juego del <span style="color: #ff8000;">Impostor</span></h1>
+    <p>Para agregar más palabras envialas en formato <br> tupla de strings a <span style="font-weight: bold;">gtornielli@udesa.edu.ar</span>.</p>
+    <button id="reconfig-button" class="hidden">Volver a configurar</button>
+    <button id="toggle-mode-button">Modo Día ☀️</button>
+    <button id="instructions-button" title="show/hide instructions">i</button>
+
+    <div id="instructions" class="hidden"> 
+        <div id="instructions-content">
+            <h2 style="text-shadow: 0 0 5px #000;">Instrucciones</h2>
+
+            <p>Para jugar en grupos de <span style="font-weight: bold;">al menos 4 personas</span>, mejor en un celu. </p>
+            <p>Cada jugador recibe una palabra, excepto el impostor.</p>
+            <p>Cada uno va a decir <span style="font-weight: bold;">una palabra que tenga algo que ver con la que recibieron </span>
+                (no vale decir la misma palabra, por ejemplo, en inglés).</p>
+            <p>La idea es que los impostores van a estar re en una y van a tener que fingir que saben la palabra.</p>
+            <p><span style="font-weight: bold;">Al final de la ronda, los jugadores votarán por el impostor.</span></p>
+            <p>Si los jugadores aciertan, ganan…</p>
+            <p>si no, el jugador votado queda afuera de la ronda, y se juega de vuelta, 
+                hasta que se descubra el último impostor. 
+                Los impostores ganan.</p>
+        </div>
+        <h4>made by LALOGIA</h4>
+        <br><br>
+    </div>
+    
+    <div id="config-container">
+        <h2>Configuración</h2>
+        <label for="num-jugadores">Número de jugadores:</label>
+        <input type="number" id="num-jugadores" min="3" max="20" value="4">
+        <br>
+        <label for="num-impostores">Número de impostores:</label>
+        <input type="number" id="num-impostores" min="1" value="1">
+        <br>
+        <button id="start-game-button">Iniciar Juego</button>
+    </div>
+
+    <div id="game-container" class="hidden">
+        <div class="message-box" id="message-box">
+            <p id="player-message">Presiona el botón para ver tu palabra.</p>
+            <button id="reveal-button">Revelar mensaje</button>
+        </div>
+        <button id="next-player-button" class="hidden">Pasar al siguiente jugador</button>
+        
+    </div>
+
+    <button id="restart-button" class="hidden">Volver a empezar</button>
+
+    <script>
+        const palabras = [
+            "Montaña", "Playa", "Guitarra", "León", "Doctor", "Parque", "Avión", "Reloj", "Futbolista", "Pirata",
+            "Carro", "Liebre", "Tortuga", "Perro", "Gato", "Escuela", "Bosque", "Ciervo", "Caballo", 
+            "Castillo", "Princesa", "Dragón", "Espada", "Escudo", "Soldado", "Pez", "Tiburón",
+            "Ballena", "Barco", "Isla", "Volcán", "Cueva", "Diamante", "Oro", "Piedra", "Árbol",
+            "Flores", "Mariposa", "Conejo", "Zorro", "Elefante", "Jirafa", "Zebra", "Tigre", "Mono",
+            "Estrella", "Luna", "Sol", "Planeta", "Cometa", "Astronauta", "Cohete", "Nave", "Cielo", "Nube",
+            "Torre", "Puente", "Río", "Lago", "Océano", "Selva", "Desierto", "Cactus", "Arena", "Camello",
+            "Carpintero", "Arquitecto", "Cocinero", "Pintor", "Escritor", "Policía", "Bombero", "Enfermero",
+            "Bailarín", "Músico", "Científico", "Inventor", "Detective", "Mago", "Bruja", "Fantasma", "Zombie",
+            "Robot", "Alien", "Cilindro", "Esfera", "Pirámide", "Templo", "Iglesia", "Museo", "Catedral",
+            "Ruinas", "Mina", "Granero", "Huerta", "Molino", "Panadero", "Carnicero", "Pescador",
+            "Zapatero", "Mercado", "Carnaval", "Circo", "Payaso", "Malabarista", "Acróbata",
+            "Jardinero", "Agricultor", "Minero", "Herrero", "Electricista", "Ingeniero", "Mecánico",
+            "Carpeta", "Cuaderno", "Lápiz", "Bolígrafo", "Goma", "Tijeras", "Cinta", "Pegamento", "Calculadora",
+            "Globo", "Juguete", "Muñeca", "Pelota", "Bicicleta", "Patineta", "Patines", "Tren", "Helicóptero",
+            "Avioneta", "Submarino", "Crucero", "Montaña rusa", "Tobogán", "Piscina/Pileta",
+            "Esquí/Ski", "Trineo", "Patinaje", "Escalada", "Camping", "Picnic", "Barbacoa", "Fiesta",
+            "Tiro con arco", "Espada láser", "Duende", "Gigante", "Ogro", "Dragón", 
+            "Hada", "Elfo", "Vampiro", "Momia", "Héroe", "Villano", "Cazador", "Samurái",
+            "Explorador", "Aventurero", "Inventor", "Profesor", "Estudiante", "Médico", 
+            "Ninja", "Guerrero", "Gladiador", "Filósofo", "Chef", "Barista", "Camarero", "Cajero",
+            "Tatuador", "Diseñador", "Programador", "Geólogo", "Biólogo", "Físico", "Químico", "Matemático",
+            "Escultor", "Actor", "Cantante", "Director", "Fotógrafo", "Periodista", "Locutor", "Guionista",
+            "Café", "Té", "Mate", "Agua", "Leche", "Jugo", "Cerveza", "Vino", "Whisky", "Monster", 
+        ];
+
+        let numJugadores = 4;
+        let numImpostores = 1;
+        let jugadores = [];
+        let turnoActual = 0;
+
+        function configurarJuego() {
+
+            document.getElementById("reconfig-button").classList.add("hidden");     ///
+
+            const jugadoresInput = document.getElementById("num-jugadores").value;
+            const impostoresInput = document.getElementById("num-impostores").value;
+
+            numJugadores = parseInt(jugadoresInput);
+            numImpostores = parseInt(impostoresInput);
+
+            if (numImpostores < 1 || numImpostores > Math.ceil(numJugadores / 3)) {
+                alert(`El número de impostores debe estar entre 1 y ${Math.ceil(numJugadores / 3)}.`);
+                return;
+            }
+            
+            iniciarJuego();
+        }
+        
+        function iniciarJuego() {
+
+            document.getElementById("config-container").classList.add("hidden");
+            document.getElementById("game-container").classList.remove("hidden");
+            document.getElementById("reconfig-button").classList.remove("hidden");     ///
+            document.getElementById("restart-button").classList.add("hidden");        ///
+
+            jugadores = [];
+            turnoActual = 0;
+
+            // Seleccionar la palabra
+            const palabraElegida = palabras[Math.floor(Math.random() * palabras.length)];
+            
+            // Crear lista de jugadores (impostores y no impostores)
+            for (let i = 0; i < numJugadores; i++) {
+                jugadores.push(palabraElegida);
+            }
+
+            for (let i = 0; i < numImpostores; i++) {
+                const index = Math.floor(Math.random() * jugadores.length);
+                jugadores[index] = "Impostor";
+            }
+
+            mostrarMensaje("Presiona el botón para ver tu palabra.", true);
+            document.getElementById("reveal-button").classList.remove("hidden");
+            document.getElementById("next-player-button").classList.add("hidden");
+            // document.getElementById("reconfig-button").classList.add("hidden");
+        }
+
+        function mostrarMensaje(mensaje, esInicial = false) {
+            const mensajeBox = document.getElementById("player-message");
+            mensajeBox.textContent = mensaje;
+
+            if (esInicial) {
+                mensajeBox.classList.remove("impostor");
+            } else if (mensaje === "Eres el impostor") {
+                mensajeBox.classList.add("impostor");
+            } else {
+                mensajeBox.classList.remove("impostor");
+            }
+        }
+
+        document.getElementById("instructions-button").addEventListener("click", () => {
+            document.getElementById("instructions").classList.toggle("hidden");
+        });
+
+        document.getElementById("start-game-button").addEventListener("click", configurarJuego);
+        
+        document.getElementById("reveal-button").addEventListener("click", () => {
+            const mensaje = jugadores[turnoActual];
+            mostrarMensaje(mensaje === "Impostor" ? "Eres el impostor" : `Tu palabra es: ${mensaje}`);
+            document.getElementById("reveal-button").classList.add("hidden");
+            document.getElementById("next-player-button").classList.remove("hidden");
+        });
+
+        document.getElementById("restart-button").addEventListener("click", iniciarJuego);      ///
+
+        document.getElementById("next-player-button").addEventListener("click", () => {
+            turnoActual++;
+
+            if (turnoActual < numJugadores) {
+                mostrarMensaje("Presiona el botón para ver tu palabra.", true);
+                document.getElementById("reveal-button").classList.remove("hidden");
+                document.getElementById("next-player-button").classList.add("hidden");
+            } else {
+                mostrarMensaje("¡La ronda ha terminado!");
+                document.getElementById("next-player-button").classList.add("hidden");
+                document.getElementById("reconfig-button").classList.remove("hidden");
+                document.getElementById("restart-button").classList.remove("hidden");
+            }
+        });
+
+        document.getElementById("reconfig-button").addEventListener("click", () => {
+            document.getElementById("game-container").classList.add("hidden");
+            document.getElementById("config-container").classList.remove("hidden");
+            document.getElementById("reconfig-button").classList.add("hidden");
+        });
+
+        // Alternar entre modo día y modo noche
+        document.getElementById("toggle-mode-button").addEventListener("click", () => {
+            const body = document.body;
+            const button = document.getElementById("toggle-mode-button");
+
+            if (body.classList.contains("day-mode")) {
+                body.classList.remove("day-mode");
+                button.textContent = "Modo Día ☀️";
+            } else {
+                body.classList.add("day-mode");
+                button.textContent = "Modo Noche 🌙";
+            }
+        });
+
+    </script>
+</body>
+</html>
